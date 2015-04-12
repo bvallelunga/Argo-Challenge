@@ -49,10 +49,6 @@ VendingMachine.prototype.buildGrid = function() {
   })
 }
 
-VendingMachine.prototype.fadeIn = function(counter) {
-  this.$container.fadeIn(counter)
-}
-
 VendingMachine.prototype.start = function() {
   var _this = this
   var count = 0
@@ -133,18 +129,22 @@ VendingMachine.prototype._shuffleSnacks = function() {
 }
 
 /* Start The Vending Machine */
+var loading = $(".loading")
 var machine = new VendingMachine(".snacks", ".snack")
 
 $(function() {
   machine.buildGrid()
 
-  setTimeout(function() {
-    machine.fadeIn(500)
-
+  $("#hi_there").css("display", "block")
+  new Vivus('hi_there', {type: 'delayed', duration: 200}, function() {
     setTimeout(function() {
-      machine.start()
-    }, 500)
-  }, 1000)
+      loading.fadeOut(500)
+
+      setTimeout(function() {
+        machine.start()
+      }, 600)
+    }, 1000)
+  })
 })
 
 $(window).resize(function() {
