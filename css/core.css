@@ -1,0 +1,55 @@
+body {
+  background: #EEF2F3;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.snacks {
+  position: relative;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+}
+
+.snacks .snack,
+.snacks .filler {
+  position: relative;
+  float: left;
+  overflow: hidden;
+
+ 	-moz-border-radius:3px;
+  -khtml-border-radius: 3px;
+	-webkit-border-radius:3px;
+	border-radius:3px;
+}
+
+.snacks .filler {
+  z-index: 1;
+  background-color: #EBEEF0;
+}
+
+.snacks .snack {
+  z-index: 2;
+  background: #fff;
+}
+
+.snacks .snack > div {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  opacity: 0.2;
+
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.snacks .snack.activated > div {
+  opacity: 1;
+}
