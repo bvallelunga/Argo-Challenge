@@ -1,9 +1,11 @@
 /* Vending Machine Class */
-var VendingMachine = function(container, selector) {
-  this.$filler = $("<div class='filler'></div>")
-  this.$container = $(container)
-  this.container = container
-  this.selector = selector
+var VendingMachine = function() {
+  this.$filler = $(".fillers")
+  this.$selectedSnack = $(".selectedSnack")
+  this.$container = $(".snacks")
+  this.selectedSnack = null
+  this.container = ".snacks"
+  this.selector = ".snack"
   this.rowSize = 150
   this.fillers = 30
   this._init()
@@ -16,7 +18,6 @@ VendingMachine.prototype._init = function() {
     "m&ms_almond", "m&ms_peaunt_butter",
     "m&ms_peaunt", "milkyway", "snickers"
   ])
-  $("body").append(this.$filler)
 }
 
 VendingMachine.prototype.buildGrid = function() {
@@ -33,20 +34,24 @@ VendingMachine.prototype.buildGrid = function() {
     this.$filler.append(this._buildSnack())
   }
 
-  this.$container.mason({
-    itemSelector: this.selector,
-    ratio: 1.5,
-    sizes: [
-      [1, 1],
-      [2, 1]
-    ],
-    filler: {
-      itemSelector: '.filler'
-    },
-    randomFillers: true,
-    layout: 'fluid',
-    gutter: 5
-  })
+  try {
+    this.$container.mason({
+      itemSelector: this.selector,
+      ratio: 1.5,
+      sizes: [
+        [1, 1],
+        [2, 1]
+      ],
+      filler: {
+        itemSelector: '.filler'
+      },
+      randomFillers: true,
+      layout: 'fluid',
+      gutter: 5
+    })
+  } catch(error) {
+    console.log(error)
+  }
 }
 
 VendingMachine.prototype.start = function() {
@@ -54,19 +59,87 @@ VendingMachine.prototype.start = function() {
   var count = 0
   var index = 0
   var times = Math.floor((Math.random() * 15) + 5);
-  var elements = this.snacks.map(function(snack) {
-    return snack.element
-  })
 
   var interval = setInterval(function() {
-    if(count >= times) return clearInterval(interval)
-    if(index >= elements.length) index = 0
+    if(index >= _this.snacks.length) index = 0
 
-    $(_this.selector).removeClass("activated")
-    elements[index].addClass("activated")
-    count++
-    index++
+    $(_this.selector).removeClass("selected")
+    _this.snacks[index].element.addClass("selected")
+
+    if(count == times) {
+      clearInterval(interval)
+      _this._selectSnack(_this.snacks[index])
+    } else if(count < times) {
+      count++
+      index++
+    }
   }, 180)
+}
+
+VendingMachine.prototype.dispense = function() {
+  this.selectedSnack.available--
+  var message = ""
+
+  if(this.selectedSnack.available == 0) {
+    message = "You got the last one!"
+  } else {
+    message = "Dispensing.... "
+    message += this.selectedSnack.available + " more are left."
+  }
+
+  this.$selectedSnack.find(".dispense").hide()
+  this.$selectedSnack.find(".reset").addClass("full").text("I'm still hungry!")
+  this.$selectedSnack.find(".header").html([
+    message, " Enjoy the <span>", this.selectedSnack.name, "</span> :)"
+  ].join(""))
+}
+
+VendingMachine.prototype.reset = function() {
+  var _this = this
+  this.$selectedSnack.fadeOut(500)
+  this.selectedSnack = null
+
+  setTimeout(function() {
+    _this.$selectedSnack.find(".image").attr("src", "")
+    _this.start()
+  }, 600)
+}
+
+VendingMachine.prototype._selectSnack = function(snack) {
+  var message;
+  var _this = this
+  var available = snack.available > 0
+
+  this.selectedSnack = snack
+  this.$selectedSnack.find(".reset").text("Try Again")
+
+  if(available) {
+    message = [
+      "CONGRATS! You can be the proud new owner of a some ",
+      "<span>", snack.name, "</span> :)"
+    ].join("")
+
+    this.$selectedSnack.find(".dispense").show()
+    this.$selectedSnack.find(".reset").removeClass("full")
+  } else {
+    message = [
+      "SORRY! We are all sold out of ",
+      "<span>", snack.name, "</span> :("
+    ].join("")
+
+    this.$selectedSnack.find(".dispense").hide()
+    this.$selectedSnack.find(".reset").addClass("full")
+  }
+
+  this.$selectedSnack.find(".header").html(message)
+  this.$selectedSnack.find(".image").attr("src", snack.imageFit)
+  this.$selectedSnack.css({
+    background: snack.color
+  })
+
+  setTimeout(function() {
+    _this.$selectedSnack.fadeIn(500)
+  }, 500)
 }
 
 VendingMachine.prototype._buildSnack = function(snack) {
@@ -95,6 +168,7 @@ VendingMachine.prototype._buildSnackList = function(list) {
     var snack = {
       name: name.replace(/_/g, " "),
       image: "./images/" + name + ".png",
+      imageFit: "./images/" + name + "_fit.png",
       available: Math.floor((Math.random() * 15) + 1),
       color: this._randomColor()
     }
@@ -108,7 +182,7 @@ VendingMachine.prototype._buildSnackList = function(list) {
 
 VendingMachine.prototype._randomColor = function() {
   var random = Math.floor(Math.random() * 360)
-  return "hsla(" + random + ", 76%, 52%, 0.8)"
+  return "hsl(" + random + ", 76%, 52%)"
 }
 
 VendingMachine.prototype._shuffleSnacks = function() {
@@ -130,21 +204,41 @@ VendingMachine.prototype._shuffleSnacks = function() {
 
 /* Start The Vending Machine */
 var loading = $(".loading")
-var machine = new VendingMachine(".snacks", ".snack")
+var message = $("#hiThere")
+var startButton = $(".button.start")
+var dispenseButton = $(".button.dispense")
+var resetButton = $(".button.reset")
+var machine = new VendingMachine()
 
 $(function() {
-  machine.buildGrid()
+  message.css("display", "block")
 
-  $("#hi_there").css("display", "block")
-  new Vivus('hi_there', {type: 'delayed', duration: 200}, function() {
-    setTimeout(function() {
-      loading.fadeOut(500)
-
-      setTimeout(function() {
-        machine.start()
-      }, 600)
-    }, 1000)
+  new Vivus('hiThere', {
+    type: 'scenario-sync',
+    duration: 20,
+    start: 'autostart',
+    dashGap: 20,
+    forceRender: false
+  }, function() {
+    startButton.fadeIn(500)
+    machine.buildGrid()
   })
+})
+
+startButton.click(function() {
+  loading.fadeOut(500)
+
+  setTimeout(function() {
+    machine.start()
+  }, 600)
+})
+
+dispenseButton.click(function() {
+  machine.dispense()
+})
+
+resetButton.click(function() {
+  machine.reset()
 })
 
 $(window).resize(function() {
