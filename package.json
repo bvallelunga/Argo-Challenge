@@ -1,0 +1,10 @@
+{
+	"name":"Cors",
+	"version":"0.0.1",
+	"private":true,
+	"dependencies":{
+		"express": "4.11.1",
+		"forever-monitor": "1.5.2",
+		"serve-static": "1.8.1"
+	}
+}

@@ -1,0 +1,25 @@
+{
+  "general":{
+		"port": 3002
+	},
+	"forever": {
+		"uid": "argo",
+		"silent": false,
+		"watch": true,
+		"watch_directory": "./",
+		"watch_ignore_dot": true,
+		"watch_ignore_patterns": [
+			"config.tmp.json",
+			"node_modules/**",
+			"assets/less/**",
+			"assets/coffee/**",
+			"logs/**",
+			"**.log",
+			".*/**",
+			".*"
+		],
+		"max_failures": 1000,
+		"output_log": "logs/server.out",
+		"error_log": "logs/server.error"
+	}
+}
