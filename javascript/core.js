@@ -16,7 +16,7 @@ VendingMachine.prototype._init = function() {
     "cheetos", "cheetos_flaming", "cheetos_puffs",
     "dorritos", "dorritos_cool", "kitkat",
     "m&ms_almond", "m&ms_peaunt_butter",
-    "m&ms_peaunt", "milkyway", "snickers"
+    "milkyway", "snickers", "argo_tea"
   ])
 }
 
@@ -37,7 +37,7 @@ VendingMachine.prototype.buildGrid = function() {
   try {
     this.$container.mason({
       itemSelector: this.selector,
-      ratio: 1.5,
+      ratio: 2,
       sizes: [
         [1, 1],
         [2, 1]

@@ -65,11 +65,12 @@ body {
 
 .selectedSnack .header span {
   text-decoration: underline;
+  text-transform: capitalize;
 }
 
 .selectedSnack .image {
   float: right;
-  width: 35%;
+  max-width: 35%;
 }
 
 .button {
